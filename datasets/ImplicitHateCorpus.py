@@ -1,6 +1,17 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 '''
+@File    :   ImplicitHateCorpus.py    
+@Contact :   1720613556@qq.com
+@License :   (C)Copyright 2021-2022
+
+@Modify Time      @Author    @Version    @Desciption
+------------      -------    --------    -----------
+2022/7/5 17:03   dst      1.0         None
+'''
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+'''
 @File    :   GabHateCorpus.py    
 @Contact :   1720613556@qq.com
 @License :   (C)Copyright 2021-2022
@@ -13,8 +24,8 @@ import torch
 from torch.utils.data import Dataset
 
 
-class GabHateCorpus(Dataset):
-    def __init__(self, tokenizer, data_dir="./data/GabHate/", mode=4):
+class ImplicitHateCorpus(Dataset):
+    def __init__(self, tokenizer, data_dir="./data/ImplicitHate/", mode=4):
         """
         MODE:
         1. IM
@@ -25,9 +36,9 @@ class GabHateCorpus(Dataset):
         """
         self.tokenizer = tokenizer
         # implicit
-        implicit_data = self.load_data(data_dir + 'implicit_toxic.txt', mode="implicit")
+        implicit_data = self.load_data(data_dir + 'implicit.txt', mode="implicit")
         # explicit
-        explicit_data = self.load_data(data_dir + 'explicit_toxic.txt', mode="explicit")
+        explicit_data = self.load_data(data_dir + 'explicit.txt', mode="explicit")
         # non
         non_data = self.load_data(data_dir + 'non_toxic.txt', mode="non")
 
