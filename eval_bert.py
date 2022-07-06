@@ -17,9 +17,9 @@ from tqdm import tqdm
 from datasets.GabHateCorpus import GabHateCorpus
 from  datasets.ImplicitHateCorpus import ImplicitHateCorpus
 from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
-# import os
-#
-# os.environ["CUDA_VISIBLE_DEVICES"]='0'
+import os
+
+os.environ["CUDA_VISIBLE_DEVICES"]='0'
 
 def evaluate(labels_all, predict_all, eval_all=False):
     """evaluation"""
