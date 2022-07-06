@@ -21,15 +21,16 @@ import os
 
 os.environ["CUDA_VISIBLE_DEVICES"]='0'
 
-def evaluate(labels_all, predict_all, POS_LABEL,eval_all=False):
+def evaluate(labels_all, predict_all, POS_LABEL,eval_all=False, prob_all=None):
     """evaluation"""
     acc = accuracy_score(labels_all, predict_all)
     print("Acc:", acc)
     if eval_all:
+        assert prob_all != None
         target_names = ['non-toxic', 'toxic'] if POS_LABEL=="toxic" else ['toxic', 'non-toxic']
         # fixme: 1 non-toxic的类别有问题， 2. auc这里得加概率
         print(classification_report(labels_all, predict_all, target_names=target_names))
-        print("Auc:", roc_auc_score(labels_all, predict_all))
+        print("Auc:", roc_auc_score(labels_all, prob_all))
 
 def load_dataset(DATASET, tokenizer, mode):
     if DATASET == 'GabHateCorpus':
@@ -55,9 +56,9 @@ if __name__ == '__main__':
     #         4. EX + IM
     #         5. EX +IM + NON
     MODE = 5
-    DATASET = 'GabHateCorpus'
-    TOKENIZER = "./models/hateBERT"
-    MODEL_NAME = "./models/hateBERT"
+    DATASET = 'ImplicitHateCorpus'
+    TOKENIZER = "tomh/toxigen_roberta"
+    MODEL_NAME = "tomh/toxigen_roberta"
     POS_LABEL = "toxic"
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"using Device: {device}")
@@ -75,10 +76,11 @@ if __name__ == '__main__':
     # DATA
     dataset = load_dataset(DATASET, tokenizer, mode=MODE) # 调整mode
     loader = DataLoader(dataset=dataset, batch_size=BATCH_SIZE, collate_fn=dataset.collate_fn, shuffle=False, num_workers=NUM_WORKERS)
-
+    print(f"the size of {DATASET}: {len(dataset)}")
 
     label_all = []
     pred_all = []
+    pred_prob_all=[]
     # EVAL
     for i, (input_ids, attention_mask, labels, implicit_labels) in tqdm(enumerate(loader), total=len(loader)):
         input_ids = input_ids.to(device)
@@ -88,16 +90,12 @@ if __name__ == '__main__':
                         attention_mask=attention_mask)
 
         # fixme: huggingface的这些模型toxic是正例还是负例是混乱的(我感觉2和4把non toxic作为正例了)
+        out = out.logits.cpu()
+        pred_prob_all.extend(out[:,1])    
         if POS_LABEL=="toxic":
-            out = out.logits.argmax(dim=1).cpu()
+            out = out.argmax(dim=1)
         else:
-            out = out.logits.argmin(dim=1).cpu()
+            out = out.argmin(dim=1)
         label_all.extend(labels)
         pred_all.extend(out)
-    evaluate(label_all, pred_all, POS_LABEL, eval_all=True) if MODE > 4 else evaluate(label_all, pred_all, POS_LABEL, eval_all=False)
-
-
-
-
-
-
+    evaluate(label_all, pred_all, POS_LABEL, eval_all=True, prob_all=pred_prob_all ) if MODE > 4 else evaluate(label_all, pred_all, POS_LABEL, eval_all=False)

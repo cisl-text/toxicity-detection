@@ -40,7 +40,7 @@ class ImplicitHateCorpus(Dataset):
         # explicit
         explicit_data = self.load_data(data_dir + 'explicit.txt', mode="explicit")
         # non
-        non_data = self.load_data(data_dir + 'non_toxic.txt', mode="non")
+        non_data = self.load_data(data_dir + 'non_toxic.txt', mode="none")
 
         if mode == 1:
             self.data = implicit_data
