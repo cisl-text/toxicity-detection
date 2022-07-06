@@ -17,16 +17,17 @@ from tqdm import tqdm
 from datasets.GabHateCorpus import GabHateCorpus
 from  datasets.ImplicitHateCorpus import ImplicitHateCorpus
 from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
-# import os
-#
-# os.environ["CUDA_VISIBLE_DEVICES"]='0'
+import os
 
-def evaluate(labels_all, predict_all, eval_all=False):
+os.environ["CUDA_VISIBLE_DEVICES"]='0'
+
+def evaluate(labels_all, predict_all, POS_LABEL,eval_all=False):
     """evaluation"""
     acc = accuracy_score(labels_all, predict_all)
     print("Acc:", acc)
     if eval_all:
-        target_names = ['toxic', 'non-toxic']
+        target_names = ['non-toxic', 'toxic'] if POS_LABEL=="toxic" else ['toxic', 'non-toxic']
+        # fixme: 1 non-toxic的类别有问题， 2. auc这里得加概率
         print(classification_report(labels_all, predict_all, target_names=target_names))
         print("Auc:", roc_auc_score(labels_all, predict_all))
 
@@ -93,7 +94,7 @@ if __name__ == '__main__':
             out = out.logits.argmin(dim=1).cpu()
         label_all.extend(labels)
         pred_all.extend(out)
-    evaluate(label_all, pred_all, eval_all=True) if MODE > 4 else evaluate(label_all, pred_all, eval_all=False)
+    evaluate(label_all, pred_all, POS_LABEL, eval_all=True) if MODE > 4 else evaluate(label_all, pred_all, POS_LABEL, eval_all=False)
 
 
 

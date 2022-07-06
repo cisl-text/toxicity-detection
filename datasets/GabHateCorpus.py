@@ -71,11 +71,11 @@ class GabHateCorpus(Dataset):
 
         # 编码
         data = self.tokenizer.batch_encode_plus(batch_text_or_text_pairs=sents,
-                                       truncation=True,
-                                       padding='max_length',
-                                       max_length=500,
-                                       return_tensors='pt',
-                                       return_length=True)
+                                                truncation=True,
+                                                padding='max_length',
+                                                max_length=500,
+                                                return_tensors='pt',
+                                                return_length=True)
 
         # input_ids:编码之后的数字
         # attention_mask:是补零的位置是0,其他位置是1
