@@ -19,7 +19,7 @@ from  datasets.ImplicitHateCorpus import ImplicitHateCorpus
 from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"]='0'
+os.environ["CUDA_VISIBLE_DEVICES"]='2'
 
 def evaluate(labels_all, predict_all, POS_LABEL,eval_all=False, prob_all=None):
     """evaluation"""
@@ -47,18 +47,19 @@ def prepare_model(tokenizer_name, model_name):
 if __name__ == '__main__':
     # https://github.com/lansinuote/Huggingface_Toturials/blob/main/7.%E4%B8%AD%E6%96%87%E5%88%86%E7%B1%BB.ipynb
 
-    BATCH_SIZE = 128
+    BATCH_SIZE = 16
     NUM_WORKERS = 8
     # MODE:
+    #         0. VO
     #         1. IM
     #         2. EX
     #         3. None
     #         4. EX + IM
     #         5. EX +IM + NON
-    MODE = 5
-    DATASET = 'ImplicitHateCorpus'
-    TOKENIZER = "tomh/toxigen_roberta"
-    MODEL_NAME = "tomh/toxigen_roberta"
+    MODE = 0
+    DATASET = 'GabHateCorpus'
+    TOKENIZER = "GroNLP/hateBERT"
+    MODEL_NAME = "GroNLP/hateBERT"
     POS_LABEL = "toxic"
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"using Device: {device}")

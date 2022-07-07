@@ -30,6 +30,8 @@ class GabHateCorpus(Dataset):
         explicit_data = self.load_data(data_dir + 'explicit_toxic.txt', mode="explicit")
         # nones
         non_data = self.load_data(data_dir + 'non_toxic.txt', mode="none")
+        # VO
+        vo_data = self.load_data(data_dir + 'vo_toxic.txt', mode="vo")
 
         if mode == 1:
             self.data = implicit_data
@@ -39,6 +41,8 @@ class GabHateCorpus(Dataset):
             self.data = non_data
         elif mode == 4:
             self.data = implicit_data + explicit_data
+        elif mode == 0:
+            self.data = vo_data
         else:
             self.data = implicit_data + explicit_data + non_data
 
@@ -60,6 +64,9 @@ class GabHateCorpus(Dataset):
                     res_data.append((text, 0, -1))
                 elif mode == "implicit":
                     res_data.append((text, 1, 1))
+                elif mode == "vo":
+                    # 按显式的算
+                    res_data.append((text, 1, 0))
                 else:  # explicit
                     res_data.append((text, 1, 0))
         return res_data
