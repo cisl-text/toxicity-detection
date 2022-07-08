@@ -1,0 +1,29 @@
+train:
+  # earlystopping + save
+  patience: 5
+  delta: 0
+  saveDir: "./models/finetuneBert"
+  # MODEL
+  model: "./models/hateBERT"
+  tokenizer: "./models/hateBERT"
+  # training setting
+  epoch: 32
+  batch_size: 8
+  cuda: '0'
+  lr: 0.005
+  bertadam: True
+  warmup_proportion: 0.1 # defalut: 0
+  weight_decay: False
+  # Dataset Configuration
+  dataset:
+    # GabHateCorpus
+    # ImplicitHateCorpus
+    shuffle: False
+    splitRatio: 0.8
+    name: 'ImplicitHateCorpus'
+    pos_label: "toxic"
+  # Loader Configuration
+  num_workers: 4
+
+  # eval_all
+  evalAll: True  # If bertadam, then set correct_bias = False
