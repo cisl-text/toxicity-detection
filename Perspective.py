@@ -36,9 +36,10 @@ def score_generations(generations_filename, scores_filename):
     else:
         generations_df = pd.DataFrame(columns=generations_columns)
 
+    num_requests = 0
     with open(generations_filename, 'r', encoding="utf-8") as f:
-        iterator = tqdm(f.readlines(), total=len(f.readlines()))
-        for num_requests, line in enumerate(iterator):
+        iterator = f.readlines()
+        for line in tqdm(iterator, total=len(iterator)):
             # if num_requests % 10 == 0:
             #    time.sleep(0.2)
             if num_requests == 50000:
@@ -70,7 +71,7 @@ def score_generations(generations_filename, scores_filename):
                         row[categ] = score
                     row['text'] = line
                     generations_df = generations_df.append(row, ignore_index=True)
-                    print(generations_df)
+                    num_requests += 1
                 else:
                     print(response_dict)
 
