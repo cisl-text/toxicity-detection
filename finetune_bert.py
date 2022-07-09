@@ -117,6 +117,8 @@ class BertTrainer:
                 loss = loss.cpu()
                 loss_total.append(loss.detach().item())
             self.eval(epoch)
+            if self.earlystop.early_stop:
+                break
 
     def eval(self, epoch):
         self.model.eval()
