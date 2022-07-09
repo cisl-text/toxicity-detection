@@ -10,7 +10,7 @@ train:
   epoch: 32
   batch_size: 8
   cuda: '0'
-  lr: 1e-4
+  lr: 0.0001
   bertadam: True
   warmup_proportion: 0.1 # defalut: 0
   weight_decay: False
