@@ -19,6 +19,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from datasets.GabHateCorpus import GabHateCorpus
 from datasets.ImplicitHateCorpus import ImplicitHateCorpus
+from datasets.ToxigenCorpus import ToxigenCorpus
 import os
 from utils import evaluate, get_config
 
@@ -28,6 +29,8 @@ def load_dataset(DATASET, tokenizer, mode):
         dataset = GabHateCorpus(tokenizer, mode=mode)
     elif DATASET == 'ImplicitHateCorpus':
         dataset = ImplicitHateCorpus(tokenizer, mode=mode)
+    elif DATASET == 'ToxigenCorpus':
+        dataset = ToxigenCorpus(tokenizer, mode=mode)
     return dataset
 
 

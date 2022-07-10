@@ -2,15 +2,16 @@ train:
   # earlystopping + save
   patience: 5
   delta: 0
-  saveDir: "./models/finetuneBert"
+  saveDir: "./models/finetuneRoberta"
   # MODEL
-  model: "./models/hateBERT"
-  tokenizer: "./models/hateBERT"
+  # "./models/hateBERT
+  model: "roberta-base"
+  tokenizer: "roberta-base"
   # training setting
   epoch: 32
-  batch_size: 8
-  cuda: '0'
-  lr: 0.0001
+  batch_size: 4
+  cuda: '2'
+  lr: 0.00001
   bertadam: True
   warmup_proportion: 0.1 # defalut: 0
   weight_decay: False
@@ -20,7 +21,7 @@ train:
     # ImplicitHateCorpus
     shuffle: False
     splitRatio: 0.8
-    name: 'ImplicitHateCorpus'
+    name: 'GabHateCorpus'
     pos_label: "toxic"
   # Loader Configuration
   num_workers: 4

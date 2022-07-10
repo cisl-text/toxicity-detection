@@ -34,7 +34,7 @@ class GabHateCorpus(Dataset):
         # implicit
         implicit_data = load_data(data_dir + 'implicit.txt', mode="implicit")
         # explicit
-        explicit_data = self.load_data(data_dir + 'explicit_toxic.txt', mode="explicit")
+        explicit_data = self.load_data(data_dir + 'explicit.txt', mode="explicit")
         # nones
         non_data = self.load_data(data_dir + 'non_toxic.txt', mode="none")
         # VO

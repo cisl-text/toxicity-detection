@@ -4,15 +4,16 @@ eval:
   # 2. tomh/toxigen_roberta
   # 3. tomh/toxigen_hatebert
   # 4. cardiffnlp/twitter-roberta-base-hate
-  model: "./models/hateBERT"
+  model: "./models/finetuneBert"
   tokenizer: "./models/hateBERT"
-  batch_size: 32
+  batch_size: 1
   cuda: '0'
   # Dataset Configuration
   dataset:
     # GabHateCorpus
     # ImplicitHateCorpus
-    name: 'ImplicitHateCorpus'
+    # ToxigenCorpus
+    name: 'ToxigenCorpus'
     # MODE:
     #         1. IM
     #         2. EX
