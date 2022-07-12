@@ -10,6 +10,8 @@
 2022/7/4 16:12   dst      1.0         None
 '''
 import argparse
+from sklearn.tree import export_text
+import pandas as pd
 
 import torch
 
@@ -24,13 +26,13 @@ import os
 from utils import evaluate, get_config
 
 
-def load_dataset(DATASET, tokenizer, mode):
+def load_dataset(DATASET, tokenizer, mode, export = False):
     if DATASET == 'GabHateCorpus':
-        dataset = GabHateCorpus(tokenizer, mode=mode)
+        dataset = GabHateCorpus(tokenizer, mode=mode, export=export)
     elif DATASET == 'ImplicitHateCorpus':
-        dataset = ImplicitHateCorpus(tokenizer, mode=mode)
+        dataset = ImplicitHateCorpus(tokenizer, mode=mode, export=export)
     elif DATASET == 'ToxigenCorpus':
-        dataset = ToxigenCorpus(tokenizer, mode=mode)
+        dataset = ToxigenCorpus(tokenizer, mode=mode, export=export)
     return dataset
 
 
@@ -38,6 +40,10 @@ def prepare_model(tokenizer_name, model_name):
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)  # tomh/toxigen_hatebert
     model = AutoModelForSequenceClassification.from_pretrained(model_name)
     return tokenizer, model
+
+def save_errors(save_data, save_path="./error_data/test.csv"):
+    save_data = pd.DataFrame(save_data, columns=['text', 'predict_score', 'implicit'])
+    save_data.to_csv(save_path, index=False)
 
 
 if __name__ == '__main__':
@@ -62,6 +68,7 @@ if __name__ == '__main__':
     TOKENIZER = config['tokenizer']
     MODEL_NAME = config['model']
     POS_LABEL = config['dataset']['pos_label']
+    EXPORT = config['export_negtive']
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"using Device: {device}")
 
@@ -75,7 +82,7 @@ if __name__ == '__main__':
     model.eval()
 
     # DATA
-    dataset = load_dataset(DATASET, tokenizer, mode=MODE)  # 调整mode
+    dataset = load_dataset(DATASET, tokenizer, mode=MODE, export = EXPORT)  # 调整mode
     loader = DataLoader(dataset=dataset, batch_size=BATCH_SIZE, collate_fn=dataset.collate_fn, shuffle=False,
                         num_workers=NUM_WORKERS)
     print(f"the size of {DATASET}: {len(dataset)}")
@@ -84,22 +91,41 @@ if __name__ == '__main__':
     pred_all = []
     pred_prob_all = []
     # EVAL
-    for i, (input_ids, attention_mask, labels, implicit_labels) in tqdm(enumerate(loader), total=len(loader)):
-        input_ids = input_ids.to(device)
-        attention_mask = attention_mask.to(device)
-        with torch.no_grad():
-            out = model(input_ids=input_ids,
-                        attention_mask=attention_mask)
+    if EXPORT == True: 
+        export_text=[]
+        for i, (input_ids, attention_mask, labels, implicit_labels, text) in tqdm(enumerate(loader), total=len(loader)):
+            input_ids = input_ids.to(device)
+            attention_mask = attention_mask.to(device)
+            with torch.no_grad():
+                out = model(input_ids=input_ids,
+                            attention_mask=attention_mask)
+            out = out.logits.cpu()
+            pred_prob_all.extend(out[:, 1])
+            if POS_LABEL == "toxic":
+                out = out.argmax(dim=1)
+            else:
+                out = out.argmin(dim=1)
+            for j in range(len(out)):
+                if out[j]!=labels[j]:
+                    export_text.append([text[j],pred_prob_all[j].item(),implicit_labels[j].item()])
+        save_errors(export_text,f"./error_data/{DATASET}{MODE}_{MODEL_NAME}.csv")
+    else: 
+        for i, (input_ids, attention_mask, labels, implicit_labels) in tqdm(enumerate(loader), total=len(loader)):
+            input_ids = input_ids.to(device)
+            attention_mask = attention_mask.to(device)
+            with torch.no_grad():
+                out = model(input_ids=input_ids,
+                            attention_mask=attention_mask)
 
-        out = out.logits.cpu()
-        pred_prob_all.extend(out[:, 1])
-        if POS_LABEL == "toxic":
-            out = out.argmax(dim=1)
-        else:
-            out = out.argmin(dim=1)
-        label_all.extend(labels)
-        pred_all.extend(out)
-    evaluate(label_all, pred_all, POS_LABEL, eval_all=True, prob_all=pred_prob_all) if MODE > 4 else evaluate(label_all,
+            out = out.logits.cpu()
+            pred_prob_all.extend(out[:, 1])
+            if POS_LABEL == "toxic":
+                out = out.argmax(dim=1)
+            else:
+                out = out.argmin(dim=1)
+            label_all.extend(labels)
+            pred_all.extend(out)
+        evaluate(label_all, pred_all, POS_LABEL, eval_all=True, prob_all=pred_prob_all) if MODE > 4 else evaluate(label_all,
                                                                                                               pred_all,
                                                                                                               POS_LABEL,
                                                                                                               eval_all=False)

@@ -5,6 +5,10 @@ import os
 def read_data(folder_dir, mode):
     if mode=="toxic":
         path = os.path.join(folder_dir,"toxic.csv")
+    elif mode == "implicit":
+        path = os.path.join(folder_dir,"implicit.csv")
+    elif mode == "explicit":
+        path = os.path.join(folder_dir,"explicit.csv")
     else:
         path = os.path.join(folder_dir,"non_toxic.csv")
 
@@ -12,10 +16,14 @@ def read_data(folder_dir, mode):
     labels_all=[]
     prob_all=[]
     data = pd.read_csv(path)
-    for item in data.values:
-        prob_all.append(item[1])
-        predict_all.append(0 if item[1]<0.5 else 1)
-        labels_all.append(1 if mode=='toxic' else 0)
+    for item in data.toxicity.values:
+        try:
+            float(item)
+        except:
+            continue
+        prob_all.append(float(item))
+        predict_all.append(0 if float(item)<0.5 else 1)
+        labels_all.append(0 if mode=='none' else 1)
     return labels_all, predict_all, prob_all
 
 if __name__ == '__main__':
@@ -23,11 +31,15 @@ if __name__ == '__main__':
     labels_all=[]
     prob_all=[]
 
-    labels, predict, prob = read_data("perspective/toxigen","toxic")
+    labels, predict, prob = read_data("perspective/implicit","implicit")
     labels_all.extend(labels)
     predict_all.extend(predict)
     prob_all.extend(prob)
-    labels, predict, prob = read_data("perspective/toxigen","none")
+    labels, predict, prob = read_data("perspective/implicit","explicit")
+    labels_all.extend(labels)
+    predict_all.extend(predict)
+    prob_all.extend(prob)
+    labels, predict, prob = read_data("perspective/implicit","none")
     labels_all.extend(labels)
     predict_all.extend(predict)
     prob_all.extend(prob)

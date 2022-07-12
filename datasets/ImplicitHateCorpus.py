@@ -25,7 +25,7 @@ from torch.utils.data import Dataset
 from utils import load_data
 
 class ImplicitHateCorpus(Dataset):
-    def __init__(self, tokenizer, data_dir="./data/ImplicitHate/", mode=5, prepared_data=None):
+    def __init__(self, tokenizer, data_dir="./data/ImplicitHate/", mode=5, prepared_data=None, export=False):
         """
         MODE:
         1. IM
@@ -34,6 +34,7 @@ class ImplicitHateCorpus(Dataset):
         4. EX + IM
         5. EX +IM + NON
         """
+        self.export = export
         self.tokenizer = tokenizer
 
         if prepared_data:
@@ -87,4 +88,7 @@ class ImplicitHateCorpus(Dataset):
         attention_mask = data['attention_mask']
         toxic_labels = torch.LongTensor(toxic_labels)
         implicit_labels = torch.LongTensor(implicit_labels)
-        return input_ids, attention_mask, toxic_labels, implicit_labels
+        if self.export == False:
+            return input_ids, attention_mask,  toxic_labels, implicit_labels
+        else:
+            return input_ids, attention_mask,  toxic_labels, implicit_labels, sents
