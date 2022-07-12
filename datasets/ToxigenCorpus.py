@@ -30,7 +30,7 @@ class ToxigenCorpus(Dataset):
 
     def switch_mode(self, data_dir, mode):
         # implicit
-        to_data = load_data(data_dir + 'toxic.txt', mode="toxic")
+        to_data = self.load_data(data_dir + 'toxic.txt', mode="toxic")
         # nones
         non_data = self.load_data(data_dir + 'non_toxic.txt', mode="none")
 
@@ -50,7 +50,7 @@ class ToxigenCorpus(Dataset):
     def load_data(self, file_name, mode):
         res_data = []
         with open(file_name, 'r', encoding="utf-8") as f:
-            for line in f.readlines():
+            for line in f.readlines()[:13000]:
                 # todo: 需要处理文本
                 text = line.strip()
                 if len(text)==0:

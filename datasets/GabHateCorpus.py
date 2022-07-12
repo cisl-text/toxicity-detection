@@ -32,7 +32,7 @@ class GabHateCorpus(Dataset):
 
     def switch_mode(self, data_dir, mode):
         # implicit
-        implicit_data = load_data(data_dir + 'implicit.txt', mode="implicit")
+        implicit_data = self.load_data(data_dir + 'implicit.txt', mode="implicit")
         # explicit
         explicit_data = self.load_data(data_dir + 'explicit.txt', mode="explicit")
         # nones

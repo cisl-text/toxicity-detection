@@ -4,8 +4,8 @@ eval:
   # 2. tomh/toxigen_roberta
   # 3. tomh/toxigen_hatebert
   # 4. cardiffnlp/twitter-roberta-base-hate
-  model: "./models/finetuneBert"
-  tokenizer: "./models/hateBERT"
+  model: "tomh/toxigen_roberta"
+  tokenizer: "tomh/toxigen_roberta"
   batch_size: 1
   cuda: '0'
   # Dataset Configuration
