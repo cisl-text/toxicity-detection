@@ -105,10 +105,11 @@ if __name__ == '__main__':
                 out = out.argmax(dim=1)
             else:
                 out = out.argmin(dim=1)
+            # fixme: 后期可以改成mask筛选的
             for j in range(len(out)):
                 if out[j]!=labels[j]:
                     export_text.append([text[j],pred_prob_all[j].item(),implicit_labels[j].item()])
-        save_errors(export_text,f"./error_data/{DATASET}{MODE}_{MODEL_NAME}.csv")
+        save_errors(export_text,f"./error_data/{DATASET}{MODE}_{MODEL_NAME.split('/')[-1]}.csv")
     else: 
         for i, (input_ids, attention_mask, labels, implicit_labels) in tqdm(enumerate(loader), total=len(loader)):
             input_ids = input_ids.to(device)
