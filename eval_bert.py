@@ -106,6 +106,7 @@ if __name__ == '__main__':
                 out = out.argmax(dim=1)
             else:
                 out = out.argmin(dim=1)
+            # fixme: 后期可以改成mask筛选的
             for j in range(len(out)):
                 if out[j]!=labels[j]:
                     export_text.append([text[j], pred_prob[j].item(),implicit_labels[j].item()])
