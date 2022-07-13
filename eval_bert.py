@@ -100,15 +100,16 @@ if __name__ == '__main__':
                 out = model(input_ids=input_ids,
                             attention_mask=attention_mask)
             out = out.logits.cpu()
-            pred_prob_all.extend(out[:, 1])
+            out = torch.nn.functional.softmax(out,dim=-1)
+            pred_prob = out[:, 1]
             if POS_LABEL == "toxic":
                 out = out.argmax(dim=1)
             else:
                 out = out.argmin(dim=1)
             for j in range(len(out)):
                 if out[j]!=labels[j]:
-                    export_text.append([text[j],pred_prob_all[j].item(),implicit_labels[j].item()])
-        save_errors(export_text,f"./error_data/{DATASET}{MODE}_{MODEL_NAME}.csv")
+                    export_text.append([text[j], pred_prob[j].item(),implicit_labels[j].item()])
+        save_errors(export_text,f"./error_data/{DATASET}{MODE}_{MODEL_NAME.split('/')[-1]}.csv")
     else: 
         for i, (input_ids, attention_mask, labels, implicit_labels) in tqdm(enumerate(loader), total=len(loader)):
             input_ids = input_ids.to(device)
