@@ -5,25 +5,27 @@ eval:
   # 3. tomh/toxigen_hatebert
   # 4. cardiffnlp/twitter-roberta-base-hate
   # roberta-base
-  model: "./models/Im_Hatebert"
-  tokenizer: "GroNLP/hateBERT"
-  batch_size: 2
-  cuda: '1'
+  model: "./models/finetuneBert"
+  tokenizer: "./models/hateBERT"
+  batch_size: 1
+  cuda: '0'
   # Dataset Configuration
   dataset:
     # GabHateCorpus
     # ImplicitHateCorpus
     # ToxigenCorpus
-    name: 'ToxigenCorpus'
+    name: 'ImplicitHateCorpus'
     # MODE:
     #         1. IM
     #         2. EX
     #         3. None
     #         4. EX + IM
     #         5. EX +IM + NON
-    mode: 5
+    mode: 2
     pos_label: "toxic"
+    correction_dir:
+    correction_size:
   # Loader Configuration
-  num_workers: 4
+  num_workers: 1
   export_negtive: True
 

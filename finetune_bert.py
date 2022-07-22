@@ -23,6 +23,7 @@ from utils import evaluate, get_config, EarlyStopping, split_data
 import transformers
 from datasets.GabHateCorpus import GabHateCorpus
 from datasets.ImplicitHateCorpus import ImplicitHateCorpus
+from datasets.SBIC import SBICDataset
 
 
 # 参考：https://zhuanlan.zhihu.com/p/524036087
@@ -55,15 +56,18 @@ class BertTrainer:
                                        path=self.save_path, trace_func=print)
 
     def prepare_dataset(self):
-        if config['dataset']['name'] == "GabHateCorpus":
+        if self.config['dataset']['name'] == "GabHateCorpus":
             train_data, test_data = split_data(data_dir="./data/GabHate/", split_ratio=self.config['dataset']['splitRatio'],
                                                              shuffle=self.config['dataset']['shuffle'])
             train_dataset = GabHateCorpus(prepared_data=train_data, tokenizer=self.tokenizer)
             test_dataset = GabHateCorpus(prepared_data=test_data, tokenizer=self.tokenizer)
-        else:
+        elif self.config['dataset']['name'] == 'ImplicitHateCorpus':
             train_data, test_data = split_data(data_dir="./data/ImplicitHate/",split_ratio=self.config['dataset']['splitRatio'],shuffle=self.config['dataset']['shuffle'])
             train_dataset = ImplicitHateCorpus(prepared_data=train_data, tokenizer=self.tokenizer)
             test_dataset = ImplicitHateCorpus(prepared_data=test_data, tokenizer=self.tokenizer)
+        elif self.config['dataset']['name'] == 'SBIC':
+            train_dataset = SBICDataset(self.tokenizer, mode=self.config['dataset']['mode'], correction_dir=self.config['dataset']['correction_dir'], correction_size=self.config['dataset']['correction_size'])
+            test_dataset = SBICDataset(self.tokenizer, mode="dirctr_test", correction_dir=self.config['dataset']['correction_dir'], correction_size=self.config['dataset']['correction_size'])
         return train_dataset, test_dataset
 
     def get_optimizer(self):

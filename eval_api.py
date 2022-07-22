@@ -30,16 +30,16 @@ if __name__ == '__main__':
     predict_all=[]
     labels_all=[]
     prob_all=[]
-
-    labels, predict, prob = read_data("perspective/implicit","implicit")
+    # implicit gab toxigen
+    labels, predict, prob = read_data("perspective/gab","implicit")
     labels_all.extend(labels)
     predict_all.extend(predict)
     prob_all.extend(prob)
-    labels, predict, prob = read_data("perspective/implicit","explicit")
+    labels, predict, prob = read_data("perspective/gab","explicit")
     labels_all.extend(labels)
     predict_all.extend(predict)
     prob_all.extend(prob)
-    labels, predict, prob = read_data("perspective/implicit","none")
+    labels, predict, prob = read_data("perspective/gab","none")
     labels_all.extend(labels)
     predict_all.extend(predict)
     prob_all.extend(prob)

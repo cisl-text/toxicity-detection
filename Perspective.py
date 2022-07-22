@@ -95,8 +95,8 @@ def score_generations(generations_filename, scores_filename):
 
 
 if __name__ == '__main__':
-    # score_generations("./data/GabHate/implicit.txt", r"C:\Users\123\Desktop\GabHateCorpus\perspective\implicit.csv")
-    score_generations("./data/GabHate/explicit.txt", r"C:\Users\123\Desktop\GabHateCorpus\perspective\explicit.csv")
+    #score_generations("./data/GabHate/implicit.txt", r"C:\Users\123\Desktop\GabHateCorpus\perspective\implicit.csv")
+    score_generations(r"C:\Users\123\Desktop\GabHateCorpus\DataExploration\ex_toxic.txt", r"C:\Users\123\Desktop\GabHateCorpus\perspective\explicit.csv")
     #score_generations("./data/GabHate/vo_toxic.txt", r"C:\Users\123\Desktop\GabHateCorpus\perspective\vo_toxic.csv")
     #score_generations("./data/GabHate/non_toxic.txt", r"C:\Users\123\Desktop\GabHateCorpus\perspective\non_toxic.csv")
     # score_generations("./data/ImplicitHate/implicit.txt", r"C:\Users\123\Desktop\implicit-hate-corpus\perspective\implicit.csv")

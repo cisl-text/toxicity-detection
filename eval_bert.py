@@ -22,17 +22,20 @@ from tqdm import tqdm
 from datasets.GabHateCorpus import GabHateCorpus
 from datasets.ImplicitHateCorpus import ImplicitHateCorpus
 from datasets.ToxigenCorpus import ToxigenCorpus
+from datasets.SBIC import SBICDataset
 import os
 from utils import evaluate, get_config
 
 
-def load_dataset(DATASET, tokenizer, mode, export = False):
+def load_dataset(DATASET, tokenizer, mode, export = False, correction_dir=None, correction_size=None):
     if DATASET == 'GabHateCorpus':
         dataset = GabHateCorpus(tokenizer, mode=mode, export=export)
     elif DATASET == 'ImplicitHateCorpus':
         dataset = ImplicitHateCorpus(tokenizer, mode=mode, export=export)
     elif DATASET == 'ToxigenCorpus':
         dataset = ToxigenCorpus(tokenizer, mode=mode, export=export)
+    elif  DATASET == 'SBIC':
+        dataset = SBICDataset(tokenizer, mode=mode, export=export, correction_dir=correction_dir, correction_size=correction_size)
     return dataset
 
 
@@ -70,6 +73,8 @@ if __name__ == '__main__':
     POS_LABEL = config['dataset']['pos_label']
     EXPORT = config['export_negtive']
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    correction_dir = config['dataset']['correction_dir']
+    correction_size = config['dataset']['correction_size']
     print(f"using Device: {device}")
 
     # MODEL
@@ -82,7 +87,7 @@ if __name__ == '__main__':
     model.eval()
 
     # DATA
-    dataset = load_dataset(DATASET, tokenizer, mode=MODE, export = EXPORT)  # 调整mode
+    dataset = load_dataset(DATASET, tokenizer, mode=MODE, export = EXPORT, correction_dir=correction_dir, correction_size=correction_size)  # 调整mode
     loader = DataLoader(dataset=dataset, batch_size=BATCH_SIZE, collate_fn=dataset.collate_fn, shuffle=False,
                         num_workers=NUM_WORKERS)
     print(f"the size of {DATASET}: {len(dataset)}")
