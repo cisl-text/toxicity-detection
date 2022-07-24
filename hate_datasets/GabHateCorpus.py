@@ -9,9 +9,10 @@
 ------------      -------    --------    -----------
 2022/7/4 18:39   dst      1.0         None
 '''
+# from ast import main
 import torch
 from torch.utils.data import Dataset
-from utils import load_data
+# from utils import load_data
 
 class GabHateCorpus(Dataset):
     def __init__(self, tokenizer, data_dir="./data/GabHate/", mode=5, prepared_data=None, export=False):
@@ -105,3 +106,6 @@ class GabHateCorpus(Dataset):
             return input_ids, attention_mask,  toxic_labels, implicit_labels, sents
 
 
+if __name__ == "__main__":
+    gh = GabHateCorpus(None, "/dev-data/ybshu/code/research/toxicity-detection/data/GabHate/")
+    print(len(gh))

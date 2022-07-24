@@ -21,10 +21,9 @@ from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, AdamW
 from utils import evaluate, get_config, EarlyStopping, split_data
 import transformers
-from datasets.GabHateCorpus import GabHateCorpus
-from datasets.ImplicitHateCorpus import ImplicitHateCorpus
-from datasets.SBIC import SBICDataset
-
+from hate_datasets.GabHateCorpus import GabHateCorpus
+from hate_datasets.ImplicitHateCorpus import ImplicitHateCorpus
+from hate_datasets.SBIC import SBICDataset
 
 # 参考：https://zhuanlan.zhihu.com/p/524036087
 class BertTrainer:

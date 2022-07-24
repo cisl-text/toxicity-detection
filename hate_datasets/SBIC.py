@@ -127,7 +127,7 @@ class MAProcessor(object):
             examples.append(
                 InputExample(guid=guid, text_a=text_a, text_b=None, label=label, micro=micro))
         return examples
-
+        
     def _read_tsv(cls, input_file, quotechar=None):
         """Reads a tab separated value file."""
         with open(input_file, "rb") as f:

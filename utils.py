@@ -69,8 +69,9 @@ def split_data(data_dir="./data/ImplicitHate/", split_ratio=0.8, shuffle=False):
     explicit_data = load_data(data_dir + 'explicit.txt', mode="explicit")
     # non
     non_data = load_data(data_dir + 'non_toxic.txt', mode="none")
-    if shuffle:
-        shuffle(implicit_data), shuffle(explicit_data), shuffle(non_data)
+    # Need to fix
+    # if shuffle:
+    #     shuffle(implicit_data), shuffle(explicit_data), shuffle(non_data)
 
     def split_data(l, ratio):
         split_point = int(len(l) * ratio)

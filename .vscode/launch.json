@@ -1,0 +1,28 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                // "--model_name_or_path", "/dev-data/ybshu/plms/bert-base-uncased",
+                "--model_name_or_path", "/dev-data/ybshu/code/research/toxicity-detection/models/hateBert",
+                //"--dataset_name", "/dev-data/ybshu/code/research/SO2022/data/so_ner_data/annotated_ner_data/StackOverflowNer",
+                "--task_name", "ImplicitHate",
+                "--max_length", "128",
+                "--per_device_train_batch_size", "4",
+                "--learning_rate", "2e-5",
+                "--num_train_epochs", "50", 
+                "--output_dir", "./checkpoints/so_ner/",
+                "--shuffle", "True"
+            ]
+        }
+    ]
+}
