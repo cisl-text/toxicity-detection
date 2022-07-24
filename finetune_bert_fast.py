@@ -177,6 +177,8 @@ def parse_args():
         default=1,
         help="the number of workers to acquire data batches"
     )
+    parser.add_argument("--local_rank", type=int, default=0)
+    
     args = parser.parse_args()
 
     # Sanity checks
