@@ -8,26 +8,21 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "/dev-data/ybshu/Anaconda/envs/py38_torch/lib/python3.8/site-packages/torch/distributed/launch.py",
+            "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": false,
+            "justMyCode": true,
             "args": [
-                "--nproc_per_node=3",
-                "finetune_bert_fast.py",
-
-
                 // "--model_name_or_path", "/dev-data/ybshu/plms/bert-base-uncased",
                 "--model_name_or_path", "/dev-data/ybshu/code/research/toxicity-detection/models/hateBert",
                 //"--dataset_name", "/dev-data/ybshu/code/research/SO2022/data/so_ner_data/annotated_ner_data/StackOverflowNer",
                 "--task_name", "ImplicitHate",
                 "--max_length", "128",
-                "--per_device_train_batch_size", "4",
+                "--per_device_train_batch_size", "12",
                 "--learning_rate", "2e-5",
                 "--num_train_epochs", "50", 
                 "--output_dir", "./checkpoints/so_ner/",
                 "--shuffle", "True"
-            ],
-            "env": {"CUDA_VISIBLE_DEVICES":"4,7,10"},
+            ]
         }
     ]
 }
