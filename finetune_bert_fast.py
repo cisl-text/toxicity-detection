@@ -178,7 +178,7 @@ def parse_args():
         help="the number of workers to acquire data batches"
     )
     parser.add_argument("--local_rank", type=int, default=0)
-    
+
     args = parser.parse_args()
 
     # Sanity checks
@@ -358,11 +358,12 @@ def finetune():
                     references = references[:len(test_dataloader)-samples_seen]
                 else:
                     samples_seen += references.shape[0]
-            test_predictions += predictions
-            test_references += references
+            test_predictions += predictions.detach().cpu().tolist()
+            test_references += references.detach().cpu().tolist()
         
-        acc = evaluate(test_references, test_predictions, "toxic", eval_all=False)
-        print(epoch, acc)
+        if accelerator.is_local_main_process:
+            acc = evaluate(test_references, test_predictions, "toxic", eval_all=False)
+            print(epoch, acc)
             
 
 
