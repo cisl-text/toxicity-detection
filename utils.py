@@ -63,12 +63,14 @@ def load_data(file_name, mode):
                 else:  # explicit
                     res_data.append((text, 1, 0))
     elif extension == "csv":
-        df = pd.read_csv(file_name)
+        df = pd.read_csv(file_name, lineterminator='\n')
         for i in range(len(df)):
             row = df.iloc[i]
             text = row["prefix"]
             prompt = row["prompt"]
             generation = row["generation"]
+            # generation = row["generation"].split("\n")[0]
+            # print(len(generation))
             if mode == 'none':
                 # (text, toxic, implicit)
                 res_data.append((text, prompt, generation, 0, -1)) 

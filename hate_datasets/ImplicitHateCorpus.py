@@ -66,13 +66,25 @@ class ImplicitHateCorpus(Dataset):
         return len(self.data)
 
     def __getitem__(self, idx):
-        text, label, implicit = self.data[idx]
-        return text, label, implicit
+        length = len(self.data[idx])
+        if length==5:
+            prefix, prompt, generation, label, implicit = self.data[idx]
+            return prefix, prompt, generation, label, implicit
+        elif length==3:
+            text, label, implicit = self.data[idx]
+            return text, label, implicit
+        else:
+            pass
 
     def collate_fn(self, data):
-        sents = [i[0] for i in data]
-        toxic_labels = [i[1] for i in data]
-        implicit_labels = [i[2] for i in data]
+
+        sents = None
+        if len(data[0])==5:
+            sents = [i[0]+i[2][len(i[1]):] for i in data]
+        else:
+            sents = [i[0] for i in data]
+        toxic_labels = [i[-2] for i in data]
+        implicit_labels = [i[-1] for i in data]
 
         # 编码
         data = self.tokenizer.batch_encode_plus(batch_text_or_text_pairs=sents,
