@@ -18,6 +18,7 @@ import torch
 from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
 from pprint import pprint
 import yaml
+import pandas as pd
 
 
 def evaluate(labels_all, predict_all, POS_LABEL="toxic", eval_all=False, prob_all=None):
@@ -48,27 +49,45 @@ def get_config(config_name, mode="train"):
 
 def load_data(file_name, mode):
     res_data = []
-    with open(file_name, 'r', encoding="utf-8") as f:
-        for line in f.readlines():
-            # todo: 需要处理文本
-            text = line.strip()
+    extension=file_name.split(".")[-1]
+    if extension == "txt":
+        with open(file_name, 'r', encoding="utf-8") as f:
+            for line in f.readlines():
+                # todo: 需要处理文本
+                text = line.strip()
+                if mode == 'none':
+                    # (text, toxic, implicit)
+                    res_data.append((text, 0, -1))
+                elif mode == "implicit":
+                    res_data.append((text, 1, 1))
+                else:  # explicit
+                    res_data.append((text, 1, 0))
+    elif extension == "csv":
+        df = pd.read_csv(file_name)
+        for i in range(len(df)):
+            row = df.iloc[i]
+            text = row["prefix"]
+            prompt = row["prompt"]
+            generation = row["generation"]
             if mode == 'none':
                 # (text, toxic, implicit)
-                res_data.append((text, 0, -1))
+                res_data.append((text, prompt, generation, 0, -1)) 
             elif mode == "implicit":
-                res_data.append((text, 1, 1))
+                res_data.append((text, prompt, generation, 1, 1)) 
             else:  # explicit
-                res_data.append((text, 1, 0))
+                res_data.append((text, prompt, generation, 1, 0)) 
+    else:
+        pass
     return res_data
 
 
-def split_data(data_dir="./data/ImplicitHate/", split_ratio=0.8, shuffle=False):
+def split_data(data_dir="./data/ImplicitHate/", split_ratio=0.8, shuffle=False, extension="txt"):
     # implicit
-    implicit_data = load_data(data_dir + 'implicit.txt', mode="implicit")
+    implicit_data = load_data(data_dir + f'implicit.{extension}', mode="implicit")
     # explicit
-    explicit_data = load_data(data_dir + 'explicit.txt', mode="explicit")
+    explicit_data = load_data(data_dir + f'explicit.{extension}', mode="explicit")
     # non
-    non_data = load_data(data_dir + 'non_toxic.txt', mode="none")
+    non_data = load_data(data_dir + f'non_toxic.{extension}', mode="none")
     # Need to fix
     # if shuffle:
     #     shuffle(implicit_data), shuffle(explicit_data), shuffle(non_data)
