@@ -1,0 +1,31 @@
+eval:
+  # MODEL
+  # 1. hateBert: GroNLP/hateBERT
+  # 2. tomh/toxigen_roberta
+  # 3. tomh/toxigen_hatebert
+  # 4. cardiffnlp/twitter-roberta-base-hate
+  # roberta-base
+  model: "./models/finetuneBert"
+  tokenizer: "./models/hateBERT"
+  batch_size: 1
+  cuda: '0'
+  # Dataset Configuration
+  dataset:
+    # GabHateCorpus
+    # ImplicitHateCorpus
+    # ToxigenCorpus
+    name: 'ImplicitHateCorpus'
+    # MODE:
+    #         1. IM
+    #         2. EX
+    #         3. None
+    #         4. EX + IM
+    #         5. EX +IM + NON
+    mode: 2
+    label_names: ["non-toxic","toxic"]
+    correction_dir:
+    correction_size:
+  # Loader Configuration
+  num_workers: 1
+  export_negtive: True
+

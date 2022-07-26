@@ -1,0 +1,35 @@
+train:
+  # earlystopping + save
+  patience: 5
+  delta: 0
+  savePretrained: True # 只保存pretrain模型
+  saveDir: "./models/finetuneRobertaIM"
+  # MODEL
+  # "./models/hateBERT
+  model: "roberta-base"
+  tokenizer: "roberta-base"
+  # training setting
+  epoch: 32
+  batch_size: 4
+  cuda: '0'
+  lr: 0.00001
+  bertadam: True
+  warmup_proportion: 0.1 # defalut: 0
+  weight_decay: False
+  # Dataset Configuration
+  dataset:
+    # GabHateCorpus
+    # ImplicitHateCorpus
+    # SBIC
+    shuffle: False
+    splitRatio: 0.8
+    name: 'SBIC'
+    label_names: ["non-toxic","toxic"]
+    correction_dir:
+    correction_size:
+    mode: 'dirctr_gold_train'
+  # Loader Configuration
+  num_workers: 4
+
+  # eval_all
+  evalAll: True  # If bertadam, then set correct_bias = False
