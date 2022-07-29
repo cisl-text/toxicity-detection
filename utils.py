@@ -19,6 +19,7 @@ import torch
 from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
 from pprint import pprint
 import yaml
+from transformers import PreTrainedModel
 
 
 def evaluate(labels_all, predict_all, label_names=['non-toxic', 'toxic'], eval_all=False, prob_all=None):
@@ -36,7 +37,7 @@ def evaluate(labels_all, predict_all, label_names=['non-toxic', 'toxic'], eval_a
 
 
 def get_config(config_name, mode="train"):
-    with open(config_name, 'r') as file:
+    with open(config_name, 'r', encoding='utf-8') as file:
         try:
             params = yaml.safe_load(file)['eval'] if mode == "eval" else yaml.safe_load(file)['train']
             # 优雅！
@@ -161,7 +162,7 @@ class EarlyStopping:
         if self.verbose:
             self.trace_func(f'Validation loss decreased ({self.val_acc_max:.6f} --> {val_acc:.6f}).  Saving model ...')
         # torch.save(model, self.path)
-        model.save_pretrained(self.path) if not self.savePretrained else model.bert.save_pretrained(self.path)
+        model.save_pretrained(self.path) if not self.savePretrained else PreTrainedModel.save_pretrained(model, self.path)
         self.val_acc_max = val_acc
 
 

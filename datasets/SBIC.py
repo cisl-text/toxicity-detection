@@ -327,9 +327,9 @@ class SBICMTLDataset(Dataset):
 
     def collate_fn(self, data):
 
-        sents = [d.text_a for d in data]
-        toxic_labels = [int(d.label) for d in data]
-        implicit_labels = [int(d.micro) for d in data]
+        sents = [d[0] for d in data]
+        toxic_labels = [int(d[1]) for d in data]
+        implicit_labels = [int(d[2]) for d in data]
 
         # 编码
         data = self.tokenizer.batch_encode_plus(batch_text_or_text_pairs=sents,
@@ -351,17 +351,17 @@ class SBICMTLDataset(Dataset):
             return input_ids, attention_mask, toxic_labels, implicit_labels, sents
 
     @staticmethod
-    def get_lewd_data(data_dir=r'data/mtl_data/', split_ratio=0.9, shuffle=False, data="lewd"):
+    def get_MTL_data(data_dir=r'data/SBIC/mtl_data/', split_ratio=0.9, shuffle=False, data="lewd"):
         if data == 'lewd':
             # lewd
             pos_data = load_data(data_dir + 'lewd.txt', mode="implicit")
             # non
-            non_data = load_data(data_dir + 'non_lewd.txt', mode="none")
+            non_data = load_data(data_dir + 'non-lewd.txt', mode="none")
         else:
             # lewd
             pos_data = load_data(data_dir + 'international.txt', mode="implicit")
             # non
-            non_data = load_data(data_dir + 'non_international.txt', mode="none")
+            non_data = load_data(data_dir + 'non-international.txt', mode="none")
         if shuffle:
             shuffle(pos_data),  shuffle(non_data)
 

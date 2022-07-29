@@ -41,7 +41,7 @@ class BertTrainer:
                                           num_workers=config['num_workers'],
                                           collate_fn=test_dataset.collate_fn)
 
-
+        # AutoModelForSequenceClassification.from_pretrained(r"C:\Users\17206\Desktop\save", num_labels=5, problem_type="multi_label_classification", ignore_mismatched_sizes=True)
         self.model = AutoModelForSequenceClassification.from_pretrained(config['model']).to(self.device)
         self.init_parameters()
         # loss
@@ -71,11 +71,11 @@ class BertTrainer:
                 train_dataset = SBICDataset(self.tokenizer, mode='dirctr_gold_train', correction_dir=self.config['dataset']['correction_dir'], correction_size=self.config['dataset']['correction_size'])
                 test_dataset = SBICDataset(self.tokenizer, mode="dirctr_test", correction_dir=self.config['dataset']['correction_dir'], correction_size=self.config['dataset']['correction_size'])
             elif self.config['dataset']['mode'] =='lewd':
-                train_data, test_data = SBICMTLDataset.get_lewd_data(data="lewd", split_ratio=self.config['dataset']['splitRatio'], shuffle=self.config['dataset']['shuffle'])
+                train_data, test_data = SBICMTLDataset.get_MTL_data(data="lewd", split_ratio=self.config['dataset']['splitRatio'], shuffle=self.config['dataset']['shuffle'])
                 train_dataset = SBICMTLDataset(self.tokenizer, prepared_data=train_data)
                 test_dataset = SBICMTLDataset(self.tokenizer, prepared_data=test_data)
             elif self.config['dataset']['mode'] == 'international':
-                train_data, test_data = SBICMTLDataset.get_inter_data(data="international",split_ratio=self.config['dataset']['splitRatio'], shuffle=self.config['dataset']['shuffle'])
+                train_data, test_data = SBICMTLDataset.get_MTL_data(data="international",split_ratio=self.config['dataset']['splitRatio'], shuffle=self.config['dataset']['shuffle'])
                 train_dataset = SBICMTLDataset(self.tokenizer, prepared_data=train_data)
                 test_dataset = SBICMTLDataset(self.tokenizer, prepared_data=test_data)
             elif self.config['dataset']['mode'] =='targetCategory':

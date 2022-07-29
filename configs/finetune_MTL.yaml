@@ -3,10 +3,10 @@ train:
   patience: 5
   delta: 0
   savePretrained: True # 只保存pretrain模型
-  saveDir: "./models/finetuneRobertaInterSBIC"
+  saveDir: "./models/finetuneRobertaInter"
   # MODEL
   # "./models/hateBERT
-  model: "./models/finetuneRobertaInter"
+  model: "roberta-base"
   tokenizer: "roberta-base"
   # training setting
   epoch: 32
@@ -24,12 +24,12 @@ train:
     shuffle: False
     splitRatio: 0.8
     name: 'SBIC'
-    label_names: ["non-toxic","toxic"]
+    label_names: ["non-inter","inter"]
     correction_dir:
     correction_size:
-    mode: 'dirctr_gold_train'
+    mode: 'international'
   # Loader Configuration
-  num_workers: 4
+  num_workers: 0
 
   # eval_all
   evalAll: True  # If bertadam, then set correct_bias = False
