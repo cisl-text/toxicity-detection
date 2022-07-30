@@ -66,11 +66,15 @@ def load_data(file_name, mode):
         df = pd.read_csv(file_name, lineterminator='\n')
         for i in range(len(df)):
             row = df.iloc[i]
-            text = row["prefix"]
-            prompt = row["prompt"]
-            generation = row["generation"]
-            # generation = row["generation"].split("\n")[0]
-            # print(len(generation))
+            try:
+                text = row["prefix"]
+                prompt = row["prompt"]
+                generation = row["generation"]   
+                # or just utlize the first line
+                #generation = row["generation"].split("\n")[0]
+            except:
+                continue
+
             if mode == 'none':
                 # (text, toxic, implicit)
                 res_data.append((text, prompt, generation, 0, -1)) 
