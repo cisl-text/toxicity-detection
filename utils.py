@@ -64,6 +64,7 @@ def load_data(file_name, mode):
                     res_data.append((text, 1, 0))
     elif extension == "csv":
         df = pd.read_csv(file_name, lineterminator='\n')
+        df.columns = ["prefix", "prompt", "generation"]
         for i in range(len(df)):
             row = df.iloc[i]
             try:
@@ -72,7 +73,8 @@ def load_data(file_name, mode):
                 generation = row["generation"]   
                 # or just utlize the first line
                 #generation = row["generation"].split("\n")[0]
-            except:
+            except Exception as E:
+                print(E)
                 continue
 
             if mode == 'none':
@@ -87,7 +89,7 @@ def load_data(file_name, mode):
     return res_data
 
 
-def split_data(data_dir="./data/ImplicitHate/", split_ratio=0.8, shuffle=False, extension="txt"):
+def split_data(data_dir="./data/ImplicitHate/", split_ratio=0.8, shuffle=False, extension="csv"):
     # implicit
     implicit_data = load_data(data_dir + f'implicit.{extension}', mode="implicit")
     # explicit

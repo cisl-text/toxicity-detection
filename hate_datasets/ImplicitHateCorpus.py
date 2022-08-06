@@ -44,11 +44,11 @@ class ImplicitHateCorpus(Dataset):
 
     def switch_mode(self, data_dir, mode):
         # implicit
-        implicit_data = load_data(data_dir + 'implicit.txt', mode="implicit")
+        implicit_data = load_data(data_dir + 'implicit.csv', mode="implicit")
         # explicit
-        explicit_data = load_data(data_dir + 'explicit.txt', mode="explicit")
+        explicit_data = load_data(data_dir + 'explicit.csv', mode="explicit")
         # non
-        non_data = load_data(data_dir + 'non_toxic.txt', mode="none")
+        non_data = load_data(data_dir + 'non_toxic.csv', mode="none")
         # mode
         if mode == 1:
             self.data = implicit_data

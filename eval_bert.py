@@ -19,10 +19,10 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from huggingface_hub import snapshot_download
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-from datasets.GabHateCorpus import GabHateCorpus
-from datasets.ImplicitHateCorpus import ImplicitHateCorpus
-from datasets.ToxigenCorpus import ToxigenCorpus
-from datasets.SBIC import SBICDataset
+from hate_datasets.GabHateCorpus import GabHateCorpus
+from hate_datasets.ImplicitHateCorpus import ImplicitHateCorpus
+from hate_datasets.ToxigenCorpus import ToxigenCorpus
+from hate_datasets.SBIC import SBICDataset
 import os
 from utils import evaluate, get_config
 
@@ -31,7 +31,7 @@ def load_dataset(DATASET, tokenizer, mode, export = False, correction_dir=None, 
     if DATASET == 'GabHateCorpus':
         dataset = GabHateCorpus(tokenizer, mode=mode, export=export)
     elif DATASET == 'ImplicitHateCorpus':
-        dataset = ImplicitHateCorpus(tokenizer, mode=mode, export=export)
+        dataset = ImplicitHateCorpus(tokenizer, mode=mode, export=export, data_dir=r"G:\Toxicity\results\hybrid-method\origin\think_135\\")
     elif DATASET == 'ToxigenCorpus':
         dataset = ToxigenCorpus(tokenizer, mode=mode, export=export)
     elif  DATASET == 'SBIC':

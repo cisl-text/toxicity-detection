@@ -14,8 +14,6 @@
             "args": [
                 "--nproc_per_node=4",
                 "finetune_bert_fast.py",
-
-
                 // "--model_name_or_path", "/dev-data/ybshu/plms/bert-base-uncased",
                 "--model_name_or_path", "/dev-data/ybshu/code/research/toxicity-detection/models/hateBert",
                 //"--dataset_name", "/dev-data/ybshu/code/research/SO2022/data/so_ner_data/annotated_ner_data/StackOverflowNer",

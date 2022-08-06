@@ -2,11 +2,11 @@ train:
   # earlystopping + save
   patience: 5
   delta: 0
-  saveDir: "/dev-data/ybshu/code/research/toxicity-detection/models/finetuneRobertaIM"
+  saveDir: "models/finetuneRobertaIM"
   # MODEL
   # "./models/hateBERT
-  model: "/dev-data/ybshu/code/research/toxicity-detection/models/hateBert"
-  tokenizer: "/dev-data/ybshu/code/research/toxicity-detection/models/hateBert"
+  model: "GroNLP/hateBERT"
+  tokenizer: "GroNLP/hateBERT"
   # training setting
   epoch: 32
   batch_size: 4

@@ -5,9 +5,9 @@ eval:
   # 3. tomh/toxigen_hatebert
   # 4. cardiffnlp/twitter-roberta-base-hate
   # roberta-base
-  model: "models/finetuneBert"
-  tokenizer: "models/hateBERT"
-  batch_size: 1
+  model: "G://Toxicity/model/bert_stage2/Im_Hatebert"
+  tokenizer: "GroNLP/hateBERT"
+  batch_size: 64
   cuda: '0'
   # Dataset Configuration
   dataset:
@@ -21,11 +21,11 @@ eval:
     #         3. None
     #         4. EX + IM
     #         5. EX +IM + NON
-    mode: 2
+    mode: 5
     pos_label: "toxic"
     correction_dir:
     correction_size:
   # Loader Configuration
   num_workers: 1
-  export_negtive: True
+  export_negtive: False
 
