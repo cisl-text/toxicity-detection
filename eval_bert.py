@@ -19,10 +19,10 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from huggingface_hub import snapshot_download
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-from datasets.GabHateCorpus import GabHateCorpus
-from datasets.ImplicitHateCorpus import ImplicitHateCorpus
-from datasets.ToxigenCorpus import ToxigenCorpus
-from datasets.SBIC import SBICDataset
+from .datasets.GabHateCorpus import GabHateCorpus
+from .datasets.ImplicitHateCorpus import ImplicitHateCorpus
+from .datasets.ToxigenCorpus import ToxigenCorpus
+from .datasets.SBIC import SBICDataset
 import os
 from utils import evaluate, get_config
 
