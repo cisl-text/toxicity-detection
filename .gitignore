@@ -2,6 +2,8 @@
 __pycache__
 .idea
 models
-
 data
+*/data/*
 log
+codes/BertGCN/checkpoint
+error_data
