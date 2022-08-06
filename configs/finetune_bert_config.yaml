@@ -6,8 +6,8 @@ train:
   saveDir: "./models/finetuneRobertaInterSBIC"
   # MODEL
   # "./models/hateBERT
-  model: "./models/finetuneRobertaInter"
-  tokenizer: "roberta-base"
+  model: "G://BERT/hateBERT"
+  tokenizer: "G://BERT/hateBERT"
   # training setting
   epoch: 32
   batch_size: 4
@@ -23,7 +23,7 @@ train:
     # SBIC
     shuffle: False
     splitRatio: 0.8
-    name: 'SBIC'
+    name: 'GabHateCorpus'
     label_names: ["non-toxic","toxic"]
     correction_dir:
     correction_size:

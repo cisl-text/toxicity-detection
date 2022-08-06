@@ -21,6 +21,29 @@ from pprint import pprint
 import yaml
 from transformers import PreTrainedModel
 
+def eval_implicit(labels_all, predict_all, implicit_all):
+    """recall in different sub-class """
+    assert len(labels_all) == len(predict_all) == len(implicit_all)
+    non_label, non_pred = [], []
+    im_label, im_pred = [], []
+    ex_label, ex_pred = [], []
+
+    for i, implicit_label in enumerate(implicit_all):
+        if implicit_label == -1:
+            # non-toxic
+            non_label.append(labels_all[i])
+            non_pred.append(predict_all[i])
+        elif implicit_label == 0:
+            # explicit toxic
+            ex_label.append(labels_all[i])
+            ex_pred.append(predict_all[i])
+        elif implicit_label == 1:
+            # implicit toxic
+            im_label.append(labels_all[i])
+            im_pred.append(predict_all[i])
+    print(f"Implicit data Acc: {accuracy_score(im_label, im_pred)}")
+    print(f"Explicit data Acc: {accuracy_score(ex_label, ex_pred)}")
+    print(f"Non-toxic data Acc: {accuracy_score(non_label, non_pred)}\n")
 
 def evaluate(labels_all, predict_all, label_names=['non-toxic', 'toxic'], eval_all=False, prob_all=None):
     """evaluation"""

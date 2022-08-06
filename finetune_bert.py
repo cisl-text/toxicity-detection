@@ -19,7 +19,7 @@ from torch.nn import CrossEntropyLoss
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, AdamW, BertForSequenceClassification, RobertaForSequenceClassification
-from utils import evaluate, get_config, EarlyStopping, split_data
+from utils import evaluate, get_config, EarlyStopping, split_data, eval_implicit
 import transformers
 from datasets.GabHateCorpus import GabHateCorpus
 from datasets.ImplicitHateCorpus import ImplicitHateCorpus
@@ -146,11 +146,13 @@ class BertTrainer:
                 break
 
     def eval(self, epoch):
+        start_time = time.time()
         self.model.eval()
         total_loss = 0
         label_all = []
         pred_all = []
         pred_prob_all = []
+        implicit_all = []
         for i, (input_ids, attention_mask, labels, implicit_labels) in enumerate(self.test_dataloader):
             input_ids = input_ids.to(self.device)
             attention_mask = attention_mask.to(self.device)
@@ -164,16 +166,21 @@ class BertTrainer:
             out = out.argmax(dim=1)
             # else:
             #     out = out.argmin(dim=1)
+            implicit_all.extend(implicit_labels)
             label_all.extend(labels)
             pred_all.extend(out)
 
         if self.eval_all:
+            eval_implicit(label_all, pred_all, implicit_all)
             acc, report, auc = evaluate(label_all, pred_all, config['dataset']['label_names'], eval_all=True,
                                         prob_all=pred_prob_all)
+
             progress_summary = f"Epoch {epoch + 1}: loss:{total_loss / len(self.test_dataloader)} acc:{acc}, auc: {auc} \n" + report
         else:
             acc = evaluate(label_all, pred_all, config['dataset']['label_names'], eval_all=False)
             progress_summary = f"Epoch {epoch + 1}: loss:{total_loss / len(self.test_dataloader)} acc:{acc} \n"
+        end_time = time.time()
+        print(f"Evaluation cost:{end_time - start_time} s")
         self.earlystop(acc, self.model, progress_summary)
 
 
@@ -186,4 +193,5 @@ if __name__ == '__main__':
     os.environ["CUDA_VISIBLE_DEVICES"] = config['cuda']
 
     trainer = BertTrainer(config)
-    trainer.finetune()
+    #trainer.finetune()
+    trainer.eval(0)
