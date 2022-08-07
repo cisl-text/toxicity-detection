@@ -1,4 +1,7 @@
 */__pycache__/*
 .idea
 models
-
+log
+data
+__pycache__
+error_data
