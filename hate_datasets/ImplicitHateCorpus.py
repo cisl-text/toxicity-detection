@@ -1,16 +1,4 @@
-#!/usr/bin/env python
-# -*- encoding: utf-8 -*-
-'''
-@File    :   ImplicitHateCorpus.py    
-@Contact :   1720613556@qq.com
-@License :   (C)Copyright 2021-2022
 
-@Modify Time      @Author    @Version    @Desciption
-------------      -------    --------    -----------
-2022/7/5 17:03   dst      1.0         None
-'''
-# !/usr/bin/env python
-# -*- encoding: utf-8 -*-
 '''
 @File    :   GabHateCorpus.py    
 @Contact :   1720613556@qq.com
@@ -21,11 +9,12 @@
 2022/7/4 18:39   dst      1.0         None
 '''
 import torch
+import numpy as np
 from torch.utils.data import Dataset
-from utils import load_data
+from utils import load_data, dependency_adj_matrix
 
 class ImplicitHateCorpus(Dataset):
-    def __init__(self, tokenizer, data_dir="./data/ImplicitHate/", mode=5, prepared_data=None, export=False):
+    def __init__(self, tokenizer, data_dir="./data/ImplicitHate/", mode=5, prepared_data=None, export=False, add_dep=False):
         """
         MODE:
         1. IM
@@ -35,6 +24,7 @@ class ImplicitHateCorpus(Dataset):
         5. EX +IM + NON
         """
         self.export = export
+        self.add_dep = add_dep
         self.tokenizer = tokenizer
 
         if prepared_data:
@@ -88,7 +78,20 @@ class ImplicitHateCorpus(Dataset):
         attention_mask = data['attention_mask']
         toxic_labels = torch.LongTensor(toxic_labels)
         implicit_labels = torch.LongTensor(implicit_labels)
-        if self.export == False:
-            return input_ids, attention_mask,  toxic_labels, implicit_labels
+        
+        if self.add_dep == True:
+            adj_matrix = []
+            for i in range(len(sents)):
+                dep_max = dependency_adj_matrix(sents[i])
+                dep_max = np.pad(dep_max, ((0,500-dep_max.shape[0]),(0,500-dep_max.shape[0])), 'constant')
+                adj_matrix.append(dep_max)
+            adj_matrix = torch.Tensor(adj_matrix)
+            if self.export == False:
+                return input_ids, attention_mask,  toxic_labels, implicit_labels, adj_matrix
+            else:
+                return input_ids, attention_mask,  toxic_labels, implicit_labels, adj_matrix, sents
         else:
-            return input_ids, attention_mask,  toxic_labels, implicit_labels, sents
+            if self.export == False:
+                return input_ids, attention_mask,  toxic_labels, implicit_labels
+            else:
+                return input_ids, attention_mask,  toxic_labels, implicit_labels, sents

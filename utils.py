@@ -9,6 +9,7 @@
 ------------      -------    --------    -----------
 2022/7/4 20:09   dst      1.0         None
 '''
+from cProfile import label
 import logging
 import os
 from datetime import datetime
@@ -20,7 +21,7 @@ from pprint import pprint
 import yaml
 
 
-def evaluate(labels_all, predict_all, POS_LABEL="toxic", eval_all=False, prob_all=None):
+def evaluate(labels_all, predict_all, POS_LABEL="toxic", eval_all=False, prob_all=None, implicit_label=None):
     """evaluation"""
     acc = accuracy_score(labels_all, predict_all)
     print("Acc:", acc)
@@ -31,6 +32,25 @@ def evaluate(labels_all, predict_all, POS_LABEL="toxic", eval_all=False, prob_al
         print(report)
         auc = roc_auc_score(labels_all, prob_all)
         print("Auc:", auc)
+        implicit_ac=0
+        implicit_all=0
+        explicit_ac=0
+        explicit_all=0
+        non_ac=0
+        non_all=0
+        for i in range(len(labels_all)):
+            if implicit_label[i] == 1: 
+                explicit_all+=1
+                explicit_ac += 1 if labels_all[i]==predict_all[i] else 0
+            if implicit_label[i] == -1: 
+                implicit_all+=1
+                implicit_ac += 1 if labels_all[i]==predict_all[i] else 0
+            if implicit_label[i] == 0: 
+                non_all+=1
+                non_ac += 1 if labels_all[i]==predict_all[i] else 0
+        print(f"explicit Acc: {float(explicit_ac)/float(explicit_all)}")
+        print(f"implicit Acc: {float(implicit_ac)/float(implicit_all)}")
+        print(f"none toxic Acc: {float(non_ac)/float(non_all)}")
         return acc, report, auc
     return acc
 
@@ -38,7 +58,8 @@ def evaluate(labels_all, predict_all, POS_LABEL="toxic", eval_all=False, prob_al
 def get_config(config_name, mode="train"):
     with open(config_name, 'r') as file:
         try:
-            params = yaml.safe_load(file)['eval'] if mode == "eval" else yaml.safe_load(file)['train']
+            print(f"mode:{mode}")
+            params = yaml.safe_load(file)[mode] 
             # 优雅！
             pprint(params, indent=4, sort_dicts=False)
             return params
@@ -83,6 +104,26 @@ def split_data(data_dir="./data/ImplicitHate/", split_ratio=0.8, shuffle=False):
     train_data = train_implicit_data + train_explicit_data + train_non_data
     test_data = test_implicit_data + test_explicit_data + test_non_data
     return train_data, test_data
+
+import spacy
+nlp = spacy.load("en_core_web_sm")
+def dependency_adj_matrix(text):
+    tokens = nlp(text)
+    # print(tokens)
+    words = text.split(' ')
+    matrix = np.zeros((len(tokens), len(tokens))).astype('float32')
+    # if len(words) != len(list(tokens)):
+    #     print(text)
+    #     print(words)
+    #     print(list(tokens))
+    #     assert False
+
+    for token in tokens:
+        matrix[token.i][token.i] = 1
+        for child in token.children:
+            matrix[token.i][child.i] = 1
+            matrix[child.i][token.i] = 1
+    return matrix
 
 
 class EarlyStopping:
@@ -158,6 +199,14 @@ class EarlyStopping:
         '''Saves model when validation loss decrease.'''
         if self.verbose:
             self.trace_func(f'Validation loss decreased ({self.val_acc_max:.6f} --> {val_acc:.6f}).  Saving model ...')
+
         # torch.save(model, self.path)
-        model.save_pretrained(self.path)
+        now = datetime.now()
+        time_str = now.strftime("%Y-%m-%d-%H-%M-%S")
+        torch.save(model.module.state_dict(), os.path.join(self.path,f"multiview{time_str}.pth"))
+        # model.save_pretrained(self.path)
         self.val_acc_max = val_acc
+
+
+def make_bert_input(tokens, tokenizer):
+    input_id = tokenizer.convert_tokens_to_ids(tokens)

@@ -21,9 +21,9 @@ from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, AdamW
 from utils import evaluate, get_config, EarlyStopping, split_data
 import transformers
-from datasets.GabHateCorpus import GabHateCorpus
-from datasets.ImplicitHateCorpus import ImplicitHateCorpus
-from datasets.SBIC import SBICDataset
+from .datasets.GabHateCorpus import GabHateCorpus
+from .datasets.ImplicitHateCorpus import ImplicitHateCorpus
+from .datasets.SBIC import SBICDataset
 
 
 # 参考：https://zhuanlan.zhihu.com/p/524036087
