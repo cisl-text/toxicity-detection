@@ -1,18 +1,21 @@
 train:
   # earlystopping + save
-  patience: 5
+  patience: 7
   delta: 0
-  saveDir: "./models/multiview-1"
+  saveDir: "./models/multiview-dep-clcls"
   # training setting
   epoch: 32
-  batch_size: 42
-  cuda: "5,6,7"
+  batch_size: 72
+  cuda: [4,5,6,7]
+  data_parallel: True
   lr: 0.00001
   bertadam: True
   warmup_proportion: 0.1 # defalut: 0
   weight_decay: False
+  from_checkpoint: False
+  checkpoint_path: ""
   dataset:
-    tokenizer: "roberta-base"
+    tokenizer: 'sentence-transformers/all-MiniLM-L6-v2'
     # ImplicitHateCorpus
     shuffle: False
     splitRatio: 0.8
@@ -21,7 +24,8 @@ train:
     num_workers: 4
     add_dep: True
 model:
-  bert_model: "roberta-base"
+  bert_model: 'sentence-transformers/all-MiniLM-L6-v2'
   word_emb_dim: 768
   lstm_hid_dim: 300
   dropout_rate: 0.5
+  add_dep: True

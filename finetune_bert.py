@@ -21,9 +21,9 @@ from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, AdamW
 from utils import evaluate, get_config, EarlyStopping, split_data
 import transformers
-from .datasets.GabHateCorpus import GabHateCorpus
-from .datasets.ImplicitHateCorpus import ImplicitHateCorpus
-from .datasets.SBIC import SBICDataset
+from hate_datasets.GabHateCorpus import GabHateCorpus
+from hate_datasets.ImplicitHateCorpus import ImplicitHateCorpus
+from hate_datasets.SBIC import SBICDataset
 
 
 # 参考：https://zhuanlan.zhihu.com/p/524036087
@@ -106,7 +106,7 @@ class BertTrainer:
 
             tqdm_bar = tqdm(self.train_dataloader, desc=f"Training epoch{epoch}, mean loss{np.mean(loss_total)}",
                             total=len(self.train_dataloader))
-            for i, (input_ids, attention_mask, labels, implicit_labels) in enumerate(tqdm_bar):
+            for i, (input_ids, attention_mask, labels, implicit_labels,_) in enumerate(tqdm_bar):
                 input_ids = input_ids.to(self.device)
                 attention_mask = attention_mask.to(self.device)
                 labels = labels.to(self.device)
@@ -130,7 +130,7 @@ class BertTrainer:
         label_all = []
         pred_all = []
         pred_prob_all = []
-        for i, (input_ids, attention_mask, labels, implicit_labels) in enumerate(self.test_dataloader):
+        for i, (input_ids, attention_mask, labels, implicit_labels,_) in enumerate(self.test_dataloader):
             input_ids = input_ids.to(self.device)
             attention_mask = attention_mask.to(self.device)
             with torch.no_grad():

@@ -1,25 +1,27 @@
 import torch
 import argparse
 import os
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3,4,5,6,7"
+# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,6,7"
 device_num = 4
 import warnings
-from model_code.KGNN import KGNN
+from model_code.KGNN import KGNN,onlyBert
 import numpy as np
 from tqdm import tqdm
 from torch.nn import CrossEntropyLoss
 from torch.utils.data import DataLoader
 from utils import get_config, split_data,EarlyStopping,evaluate
-from transformers import AutoTokenizer, AdamW
+from transformers import AutoTokenizer, AdamW,RobertaTokenizer, BertTokenizer
 import transformers
 import time
 from hate_datasets.ImplicitHateCorpus import ImplicitHateCorpus
 class ModelTrainer:
     def __init__(self, train_config, model_config):
         self.train_config = train_config
-        self.tokenizer = AutoTokenizer.from_pretrained(train_config['dataset']['tokenizer'])
-        self.device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+        self.data_parallel= train_config['data_parallel']
+        self.device_ids = train_config['cuda']
+        self.tokenizer = RobertaTokenizer.from_pretrained(train_config['dataset']['tokenizer'])
+        self.device = torch.device(f"cuda:{self.device_ids[0]}" if torch.cuda.is_available() else "cpu")
         # finetune data: train, test
         train_dataset, test_dataset = self.prepare_dataset()
         self.train_dataloader = DataLoader(train_dataset, batch_size=train_config['batch_size'], shuffle=True,
@@ -29,17 +31,28 @@ class ModelTrainer:
                                           num_workers=train_config['dataset']['num_workers'],
                                           collate_fn=test_dataset.collate_fn)
 
-        self.device_ids = [i for i in range(device_num)]
+
         self.model = KGNN(bert_model=model_config['bert_model'], word_emb_dim=model_config['word_emb_dim'],
-                            lstm_hid_dim=model_config['lstm_hid_dim'], dropout_rate=model_config['dropout_rate'])
-        self.model = torch.nn.DataParallel(self.model,device_ids=[1,2,3,4,5,6,7])
+                            lstm_hid_dim=model_config['lstm_hid_dim'], dropout_rate=model_config['dropout_rate'], 
+                            add_dep=model_config['add_dep'])
+        # self.model = onlyBert(bert_model=model_config['bert_model'])
+        if self.data_parallel == True:
+            self.model = torch.nn.DataParallel(self.model,device_ids= self.device_ids)
         self.model = self.model.to(self.device)
         # loss
         self.loss = CrossEntropyLoss()
         # optimizer & scheduler
         self.get_optimizer()
-        self.optimizer =torch.nn.DataParallel(self.optimizer,device_ids=[1,2,3,4,5,6,7])
-        self.scheduler = torch.nn.DataParallel(self.scheduler,device_ids=[1,2,3,4,5,6,7])
+        if self.data_parallel == True:
+            self.optimizer =torch.nn.DataParallel(self.optimizer,device_ids= self.device_ids)
+            self.scheduler = torch.nn.DataParallel(self.scheduler,device_ids= self.device_ids)
+        
+        if train_config['from_checkpoint']==True:
+            checkpoint = torch.load(train_config['checkpoint_path'])
+            self.model.load_state_dict(checkpoint['model_state_dict'])
+            self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+            self.epoch_ck = checkpoint['epoch']
+            self.loss_ck = checkpoint['loss']
         # save
         self.save_path = train_config['saveDir']
         if not os.path.exists(self.save_path):
@@ -98,16 +111,26 @@ class ModelTrainer:
                 attention_mask = attention_mask.to(self.device)
                 labels = labels.to(self.device)
                 adj_matrix = adj_matrix.to(self.device)
-                self.model.module.zero_grad()
+                if self.data_parallel == True:
+                    self.model.module.zero_grad()
+                else:
+                    self.model.zero_grad()
                 out = self.model(input_ids=input_ids,
                                  attention_mask=attention_mask, adj=adj_matrix)
-                if i==10:
+                if i==1:
                     print(out)
+                    # assert False
                 loss = self.loss(out, labels)
                 loss.backward()
-                self.optimizer.module.step()
-                self.scheduler.module.step()
-                self.optimizer.module.zero_grad()
+                # 优化
+                if self.data_parallel == True:
+                    self.optimizer.module.step()
+                    self.scheduler.module.step()
+                    self.optimizer.module.zero_grad()
+                else:
+                    self.optimizer.step()
+                    self.scheduler.step()
+                    self.optimizer.zero_grad()
                 loss = loss.cpu()
                 loss_total.append(loss.detach().item())
             self.eval(epoch)
@@ -120,7 +143,8 @@ class ModelTrainer:
         label_all = []
         pred_all = []
         pred_prob_all = []
-        for i, (input_ids, attention_mask, labels, implicit_labels, adj_matrix) in enumerate(self.test_dataloader):
+        implicit_all=[]
+        for i, (input_ids, attention_mask, labels, implicit_labels, adj_matrix) in tqdm(enumerate(self.test_dataloader)):
             input_ids = input_ids.to(self.device)
             attention_mask = attention_mask.to(self.device)
             adj_matrix = adj_matrix.to(self.device)
@@ -133,10 +157,14 @@ class ModelTrainer:
             out = out.argmax(dim=1)
             label_all.extend(labels)
             pred_all.extend(out)
-        acc, report, auc = evaluate(label_all, pred_all, "toxic", eval_all=True,
-                                    prob_all=pred_prob_all)
-        progress_summary = f"Epoch {epoch + 1}: loss:{total_loss / len(self.test_dataloader)} acc:{acc}, auc: {auc} \n" + report
-        self.earlystop(acc, self.model, progress_summary)
+            implicit_all.extend(implicit_labels)
+        acc, report, auc, each_acc_str = evaluate(label_all, pred_all, "toxic", eval_all=True,
+                                    prob_all=pred_prob_all,implicit_label=implicit_all)
+        progress_summary = f"Epoch {epoch + 1}: loss:{total_loss / len(self.test_dataloader)} acc:{acc}, auc: {auc} \n" + report+'\n'+each_acc_str
+        if self.train_config['data_parallel']:
+            self.earlystop(acc, self.model.module, progress_summary, epoch, self.optimizer.module, total_loss, self.scheduler.module)
+        else:
+            self.earlystop(acc, self.model, progress_summary, epoch, self.optimizer, total_loss, self.scheduler )
 
 if __name__ == '__main__':
 

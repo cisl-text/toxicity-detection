@@ -5,8 +5,8 @@ train:
   saveDir: "./models/finetuneRobertaIM"
   # MODEL
   # "./models/hateBERT
-  model: "./models/hateBERT"
-  tokenizer: "./models/hateBERT"
+  model: "GroNLP/hateBERT"
+  tokenizer: "GroNLP/hateBERT"
   # training setting
   epoch: 32
   batch_size: 4
@@ -22,7 +22,7 @@ train:
     # SBIC
     shuffle: False
     splitRatio: 0.8
-    name: 'SBIC'
+    name: 'ImplicitHateCorpus'
     pos_label: "toxic"
     correction_dir:
     correction_size:

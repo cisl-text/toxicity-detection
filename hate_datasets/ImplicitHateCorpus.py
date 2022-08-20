@@ -11,7 +11,7 @@
 import torch
 import numpy as np
 from torch.utils.data import Dataset
-from utils import load_data, dependency_adj_matrix
+from utils import load_data, dependency_adj_matrix, make_bert_input
 
 class ImplicitHateCorpus(Dataset):
     def __init__(self, tokenizer, data_dir="./data/ImplicitHate/", mode=5, prepared_data=None, export=False, add_dep=False):
@@ -61,37 +61,48 @@ class ImplicitHateCorpus(Dataset):
 
     def collate_fn(self, data):
         sents = [i[0] for i in data]
+        sent_tokens = []
+        # 分词 和 依存树
+        if self.add_dep == True:
+            adj_matrix = []
+            for i in range(len(sents)):
+                dep_max, tokens = dependency_adj_matrix(sents[i])
+                dep_max = np.pad(dep_max, ((0,500-dep_max.shape[0]),(0,500-dep_max.shape[0])), 'constant')
+                adj_matrix.append(dep_max)
+                sent_tokens.append(tokens)
+            adj_matrix = torch.Tensor(adj_matrix)
+        else:
+            sent_tokens = [i.split() for i in sents]
+
         toxic_labels = [i[1] for i in data]
         implicit_labels = [i[2] for i in data]
 
         # 编码
+        input_ids, attention_mask = make_bert_input(sent_tokens, self.tokenizer, pad_len=500)
+        # !使用tokenizer
         data = self.tokenizer.batch_encode_plus(batch_text_or_text_pairs=sents,
-                                                truncation=True,
-                                                padding='max_length',
-                                                max_length=500,
-                                                return_tensors='pt',
-                                                return_length=True)
+                                       truncation=True,
+                                       padding='max_length',
+                                       max_length=500,
+                                       return_tensors='pt',
+                                       return_length=True,
+                                       )
 
         # input_ids:编码之后的数字
         # attention_mask:是补零的位置是0,其他位置是1
         input_ids = data['input_ids']
         attention_mask = data['attention_mask']
+
         toxic_labels = torch.LongTensor(toxic_labels)
         implicit_labels = torch.LongTensor(implicit_labels)
         
         if self.add_dep == True:
-            adj_matrix = []
-            for i in range(len(sents)):
-                dep_max = dependency_adj_matrix(sents[i])
-                dep_max = np.pad(dep_max, ((0,500-dep_max.shape[0]),(0,500-dep_max.shape[0])), 'constant')
-                adj_matrix.append(dep_max)
-            adj_matrix = torch.Tensor(adj_matrix)
             if self.export == False:
                 return input_ids, attention_mask,  toxic_labels, implicit_labels, adj_matrix
             else:
                 return input_ids, attention_mask,  toxic_labels, implicit_labels, adj_matrix, sents
         else:
             if self.export == False:
-                return input_ids, attention_mask,  toxic_labels, implicit_labels
+                return input_ids, attention_mask,  toxic_labels, implicit_labels, None
             else:
                 return input_ids, attention_mask,  toxic_labels, implicit_labels, sents
